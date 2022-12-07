@@ -9,7 +9,7 @@ export class PrismaService
             super({
                 datasources: {
                     db: {
-                        url: 'postgresql://postgres:123@localhost:5432/nestjs?schema=public',
+                        url: 'postgresql://postgres:123456@localhost:5432/nestjs?schema=public',
             },
         },
     });

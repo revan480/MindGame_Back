@@ -1,5 +1,27 @@
 version: '3'
 services:
+  # app:
+  #   build: 
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: 'nestjs'
+  #   # command: npm run start:dev    
+  #   # restart: unless-stopped
+  #   environment:
+  #       DATABASE_URL: postgres://postgres:123456@localhost:5432/nestjs
+  #       NODE_ENV: .env
+  #       PORT: 3000
+  #   ports:
+  #       - "8080:3000"
+  #   depends_on:
+  #     - db
+  #   # links:
+  #     # - db
+  #   # networks:
+  #     # - nestjs
+  #   env_file:
+  #    - .env
+
   db:
     image: postgres:12
     ports:
@@ -8,3 +30,5 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123456
       POSTGRES_DB: nestjs
+    volumes:
+      - ./data:/var/lib/postgresql/data

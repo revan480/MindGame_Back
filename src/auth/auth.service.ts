@@ -1,6 +1,8 @@
+/* eslint-disable prettier/prettier */
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { AuthDto } from './dto';
+import { MailerService } from '@nestjs-modules/mailer';
+import { AuthDto, EmailDto } from './dto';
 import * as bcrypt from 'bcrypt';
 import { Tokens } from './types';
 import { JwtService } from '@nestjs/jwt';
@@ -8,25 +10,39 @@ import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class AuthService {
     constructor(private prisma: PrismaService,
-    private jwtService: JwtService    
+    private jwtService: JwtService,
+    private mailService: MailerService
         ) {}
     
 
     async signupLocal(dto: AuthDto): Promise<Tokens> {
-        const hash = await this.hashData(dto.password);
+        // First, check if the user already exists
+        const user = await this.prisma.user.findUnique({
+            where: {
+                email: dto.email,
+            },
+        });
+        if (user) {
+            throw new ForbiddenException('User already exists');
+        }
+        // If not, send the email to the user with a link to verify the email
+        // await this.sendEmail(dto);
+        // Then, create the user in the database
+        const hash = await bcrypt.hash(dto.password, 10);
         const newUser = await this.prisma.user.create({
             data: {
                 email: dto.email,
                 hash,
-            }
+            },
         });
-
-        const tokens = await this.getTokens(newUser.id, newUser.email)
+        // Finally, return the tokens
+        const tokens = await this.getTokens(newUser.id, newUser.email);
         await this.updateRtHash(newUser.id, tokens.refresh_token);
         return tokens;
 
 
-    
+
+
 }
     async signinLocal(dto: AuthDto): Promise<Tokens> {
         const user = await this.prisma.user.findUnique({
@@ -120,5 +136,15 @@ export class AuthService {
 
     };
 }
-
+    async sendEmail(email: EmailDto) {
+        const email_send = await this.mailService.sendMail({
+            to: email.email,
+            from: 'Mailgun Sandbox',
+            subject: 'Testing Nest MailerModule ✔',
+            text: 'welcome',
+            html: '<b>welcome</b>',
+        });
+        console.log(email_send);
+        return email_send;
+    }
 }

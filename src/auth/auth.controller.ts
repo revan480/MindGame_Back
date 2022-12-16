@@ -1,16 +1,18 @@
-import { Body,Controller,HttpCode,HttpStatus,Post, Req, UseGuards, } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+/* eslint-disable prettier/prettier */
+
+import { MailerService } from '@nestjs-modules/mailer';
+import { Body,Controller,HttpCode,HttpStatus,Post, Query, Req, UseGuards, } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthDto } from './dto';
+import { AuthDto, EmailDto } from './dto';
 import { Tokens } from './types';
-import { Request } from 'express';
 import { RtGuard } from 'src/common/guards';
 import { getCurrentUser } from 'src/common/decorators';
 import { getCurrentUserId } from 'src/common/decorators/get-current-user-id.decarator';
 import { Public } from 'src/common/decorators/public.decarator';
+
 @Controller('auth')
 export class AuthController {
-    constructor(private authService: AuthService) {
+    constructor(private authService: AuthService, private mailService:MailerService) {
     }
     @Public()
     @Post('local/signup')
@@ -32,6 +34,7 @@ export class AuthController {
     logout(@getCurrentUserId() userId: number) {
         return this.authService.logout(userId);
     }
+    
     @Public()
     @UseGuards(RtGuard)
     @Post('refresh')
@@ -42,5 +45,12 @@ export class AuthController {
         return this.authService.refreshTokens(
             userId, refreshToken
         );
+    }
+
+    // @Public()
+    @Post('email/send')
+    @HttpCode(HttpStatus.OK)
+    sendEmail(@Body() email:EmailDto){
+        return this.authService.sendEmail(email);
     }
 }

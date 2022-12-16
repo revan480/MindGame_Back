@@ -1,3 +1,5 @@
+/* eslint-disable prettier/prettier */
+
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';

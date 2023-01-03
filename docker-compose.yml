@@ -1,34 +1,52 @@
-version: '3'
+version: '3.8'
 services:
-  # app:
-  #   build: 
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   container_name: 'nestjs'
-  #   # command: npm run start:dev    
-  #   # restart: unless-stopped
-  #   environment:
-  #       DATABASE_URL: postgres://postgres:123456@localhost:5432/nestjs
-  #       NODE_ENV: .env
-  #       PORT: 3000
-  #   ports:
-  #       - "8080:3000"
-  #   depends_on:
-  #     - db
-  #   # links:
-  #     # - db
-  #   # networks:
-  #     # - nestjs
-  #   env_file:
-  #    - .env
+  app:
+    container_name: nestjs
+    image: test
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: npm run start:dev 
+    ports:
+      - 3000:3000
+      - 9229:9229
+    networks:
+      - nestjs
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    links: 
+      - db
+    depends_on: 
+      - db
+    restart: always
+
 
   db:
-    image: postgres:12
+    image: postgres:12.9
     ports:
-      - "5432:5432"
+      - 5432:5432
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123456
       POSTGRES_DB: nestjs
+
     volumes:
       - ./data:/var/lib/postgresql/data
+    networks:
+      - nestjs
+    restart: always
+  
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8000:8080
+
+networks:
+  nestjs:
+    driver: bridge
+
+
+
+

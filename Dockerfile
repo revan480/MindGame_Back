@@ -12,9 +12,10 @@ RUN npm install
 # Bundle app source
 COPY . .
 
+RUN npm run build
+
 EXPOSE 8080
 
 RUN npx prisma generate
 
 CMD [ "node", "dist/main" ]
-

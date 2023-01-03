@@ -2,14 +2,13 @@ version: '3.8'
 services:
   app:
     container_name: nestjs
-    image: test
+    image: nestjs
     build: 
       context: .
       dockerfile: Dockerfile
     command: npm run start:dev 
     ports:
       - 3000:3000
-      - 9229:9229
     networks:
       - nestjs
     volumes:
@@ -32,7 +31,7 @@ services:
       POSTGRES_DB: nestjs
 
     volumes:
-      - ./data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data
     networks:
       - nestjs
     restart: always
@@ -47,6 +46,7 @@ networks:
   nestjs:
     driver: bridge
 
-
+volumes:
+  db_data:
 
 

@@ -1,9 +1,10 @@
 /* eslint-disable prettier/prettier */
-
+import { User } from '@prisma/client';
+import { RefreshTokenDto } from './dto/rt.dto';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Body,Controller,HttpCode,HttpStatus,Post, Query, Req, UseGuards, } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthDto, EmailDto } from './dto';
+import { AuthDto, EmailDto, LogoutDto } from './dto';
 import { Tokens } from './types';
 import { RtGuard } from 'src/common/guards';
 import { getCurrentUser } from 'src/common/decorators';
@@ -28,29 +29,20 @@ export class AuthController {
         return this.authService.signinLocal(dto);
     }
 
-    
+    @Public()
     @Post('logout')
     @HttpCode(HttpStatus.OK)
-    logout(@getCurrentUserId() userId: number) {
-        return this.authService.logout(userId);
+    async logout(@Body() logoutDto: LogoutDto) {
+        return this.authService.logout(logoutDto);
     }
     
     @Public()
     @UseGuards(RtGuard)
     @Post('refresh')
     @HttpCode(HttpStatus.OK)
-    refreshTokens(
-    @getCurrentUserId() userId: number,
-    @getCurrentUser('refreshToken') refreshToken: string) {
-        return this.authService.refreshTokens(
-            userId, refreshToken
-        );
+    async refreshTokens(@Body() refreshTokenDto: RefreshTokenDto) {
+        return await this.authService.refreshTokens(refreshTokenDto);
     }
+    
 
-    // @Public()
-    @Post('email/send')
-    @HttpCode(HttpStatus.OK)
-    sendEmail(@Body() email:EmailDto){
-        return this.authService.sendEmail(email);
-    }
 }

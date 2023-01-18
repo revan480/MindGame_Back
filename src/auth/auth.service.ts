@@ -1,5 +1,7 @@
 /* eslint-disable prettier/prettier */
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { RefreshTokenDto } from './dto/rt.dto';
+import { LogoutDto } from './dto/logout.dto';
+import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { MailerService } from '@nestjs-modules/mailer';
 import { AuthDto, EmailDto } from './dto';
@@ -13,8 +15,6 @@ export class AuthService {
     private jwtService: JwtService,
     private mailService: MailerService
         ) {}
-    
-
     async signupLocal(dto: AuthDto): Promise<Tokens> {
         // First, check if the user already exists
         const user = await this.prisma.user.findUnique({
@@ -25,8 +25,7 @@ export class AuthService {
         if (user) {
             throw new ForbiddenException('User already exists');
         }
-        // If not, send the email to the user with a link to verify the email
-        // await this.sendEmail(dto);
+
         // Then, create the user in the database
         const hash = await bcrypt.hash(dto.password, 10);
         const newUser = await this.prisma.user.create({
@@ -39,11 +38,8 @@ export class AuthService {
         const tokens = await this.getTokens(newUser.id, newUser.email);
         await this.updateRtHash(newUser.id, tokens.refresh_token);
         return tokens;
-
-
-
-
 }
+
     async signinLocal(dto: AuthDto): Promise<Tokens> {
         const user = await this.prisma.user.findUnique({
             where: {
@@ -62,34 +58,56 @@ export class AuthService {
 
 
     }
-    async logout(userID:number) {
-        await this.prisma.user.updateMany({
+    
+    async logout(logoutDto: LogoutDto){
+        const { userId } = logoutDto;
+          await this.prisma.user.update({
             where: {
-                id: userID,
-                hashedRt: {
-                    not: null,
-                }
+              id: userId,
             },
             data: {
-                hashedRt: null,
+              hashedRt: null,
             },
+          });
+          return 'Successfully logged out';
+    }
 
-        });
-        
+
+    // async refreshTokens(userId: number, refreshToken: string): Promise<Tokens> {
+    //     const user = await this.prisma.user.findUnique({
+    //         where: {
+    //             id: userId,
+    //         },
+    //     });
+    //     if (!user || !user.hashedRt) {
+    //         throw new ForbiddenException('Invalid credentials');
+    //     }
+    //     const rtMatches = await bcrypt.compare(refreshToken, user.hashedRt);
+    //     if (!rtMatches) {
+    //         throw new ForbiddenException('Invalid credentials');
+    //     }
+    //     const tokens = await this.getTokens(user.id, user.email);
+    //     await this.updateRtHash(user.id, tokens.refresh_token);
+    //     return tokens;
+    // }
+    
+    async refreshTokens(refreshTokenDto:RefreshTokenDto){
+        // const { refreshToken } = refreshTokenDto;
+        // const user = await this.prisma.user.findUnique({
+        //     where: {
+        //         id: refreshTokenDto.userId,
+        //     },
+        //     select: { id: true }
+        // });
+        // if (!user) {
+        //     throw new UnauthorizedException('Invalid credentials');
+        // }
+        // const tokens = await this.getTokens(user.id, refreshTokenDto.email);
+        // await this.updateRtHash(user.id, tokens.refresh_token);
+        // return tokens;
+        return "Salam";
     }
-    async refreshTokens(userID: number, rt: string) {
-        const user = await this.prisma.user.findUnique({
-            where: {
-                id: userID,
-            },
-        });
-        if (!user || !user.hashedRt) throw new ForbiddenException('Invalid credentials');
-        const rtMatches = await bcrypt.compare(rt, user.hashedRt);
-        if (!rtMatches) throw new ForbiddenException('Invalid credentials');
-        const tokens = await this.getTokens(user.id, user.email);
-        await this.updateRtHash(user.id, tokens.refresh_token);
-        return tokens;
-    }
+    
 
     async updateRtHash(userID: number, rt: string) {
         const hash = await this.hashData(rt);
@@ -136,15 +154,4 @@ export class AuthService {
 
     };
 }
-    async sendEmail(email: EmailDto) {
-        const email_send = await this.mailService.sendMail({
-            to: email.email,
-            from: 'Mailgun Sandbox',
-            subject: 'Testing Nest MailerModule ✔',
-            text: 'welcome',
-            html: '<b>welcome</b>',
-        });
-        console.log(email_send);
-        return email_send;
-    }
 }

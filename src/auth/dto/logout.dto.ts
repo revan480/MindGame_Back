@@ -3,9 +3,9 @@
 import { ApiProperty } from "@nestjs/swagger";
 
 export class LogoutDto {
-    @ApiProperty({ description: 'User id' })
+    @ApiProperty({
+        description: 'Write your user id',
+        example: '1'
+    })
     userId: number;
-
-    @ApiProperty({ description: 'Refresh token' })
-    refreshToken: string;
 }

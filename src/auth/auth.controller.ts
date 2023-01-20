@@ -2,7 +2,7 @@
 import { User } from '@prisma/client';
 import { RefreshTokenDto } from './dto/rt.dto';
 import { MailerService } from '@nestjs-modules/mailer';
-import { Body,Controller,HttpCode,HttpStatus,Post, Query, Req, UseGuards, } from '@nestjs/common';
+import { Body,Controller,Get,HttpCode,HttpStatus,Post, Query, Req, UseGuards, } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto, EmailDto, LogoutDto } from './dto';
 import { Tokens } from './types';
@@ -15,6 +15,14 @@ import { Public } from 'src/common/decorators/public.decarator';
 export class AuthController {
     constructor(private authService: AuthService, private mailService:MailerService) {
     }
+    @Public()
+    @Get('test')
+    @HttpCode(HttpStatus.CREATED)
+    getHello(): string {
+        return this.authService.getHello();
+    }
+
+    
     @Public()
     @Post('local/signup')
     @HttpCode(HttpStatus.CREATED)

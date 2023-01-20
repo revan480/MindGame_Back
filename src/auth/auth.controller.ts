@@ -2,7 +2,7 @@
 import { User } from '@prisma/client';
 import { RefreshTokenDto } from './dto/rt.dto';
 import { MailerService } from '@nestjs-modules/mailer';
-import { Body,Controller,HttpCode,HttpStatus,Post, Query, Req, UseGuards, } from '@nestjs/common';
+import { Body,Controller,Get,HttpCode,HttpStatus,Post, Query, Req, UseGuards, } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto, EmailDto, LogoutDto } from './dto';
 import { Tokens } from './types';

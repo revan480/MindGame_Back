@@ -18,7 +18,7 @@ export class AuthService {
 
         getHello():string
         {
-            return 'Hello World!!!';
+            return 'Pipeline added';
         }
     async signupLocal(dto: AuthDto): Promise<Tokens> {
         // First, check if the user already exists

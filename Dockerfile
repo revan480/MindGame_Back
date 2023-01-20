@@ -21,7 +21,7 @@ FROM development AS production
 RUN npm run build
 
 # Expose the port
-EXPOSE 8080
+EXPOSE 3000
 
 RUN npx prisma generate
 

@@ -16,6 +16,14 @@ export class AuthController {
     constructor(private authService: AuthService, private mailService:MailerService) {
     }
     @Public()
+    @Get('test')
+    @HttpCode(HttpStatus.CREATED)
+    getHello(): string {
+        return this.authService.getHello();
+    }
+
+    
+    @Public()
     @Post('local/signup')
     @HttpCode(HttpStatus.CREATED)
     signupLocal(@Body() dto: AuthDto): Promise<Tokens> {

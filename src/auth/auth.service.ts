@@ -15,6 +15,11 @@ export class AuthService {
     private jwtService: JwtService,
     private mailService: MailerService
         ) {}
+
+        getHello():string
+        {
+            return 'Hello World';
+        }
     async signupLocal(dto: AuthDto): Promise<Tokens> {
         // First, check if the user already exists
         const user = await this.prisma.user.findUnique({

@@ -29,10 +29,6 @@ export class AuthService {
     try {
       const user = await this.usersService.findOneByEmail(loginDto.email);
 
-      if (!user.isActive) {
-        throw new ForbiddenException('User is not active');
-      }
-
       const isMatch = await bcrypt.compare(loginDto.password, user.password);
 
       if (!isMatch) {

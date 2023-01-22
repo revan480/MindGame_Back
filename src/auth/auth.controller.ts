@@ -1,56 +1,59 @@
-/* eslint-disable prettier/prettier */
-import { User } from '@prisma/client';
-import { RefreshTokenDto } from './dto/rt.dto';
-import { MailerService } from '@nestjs-modules/mailer';
-import { Body,Controller,Get,HttpCode,HttpStatus,Post, Query, Req, UseGuards, } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Redirect } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { User } from 'src/users/entities/user.entity';
+import { UsersService } from 'src/users/users.service';
 import { AuthService } from './auth.service';
-import { AuthDto, EmailDto, LogoutDto } from './dto';
-import { Tokens } from './types';
-import { RtGuard } from 'src/common/guards';
-import { getCurrentUser } from 'src/common/decorators';
-import { getCurrentUserId } from 'src/common/decorators/get-current-user-id.decarator';
-import { Public } from 'src/common/decorators/public.decarator';
+import { GetUser } from './decorators/get-user.decorator';
+import { LoginDto } from './dto/login.dto';
+import { JwtAuthGuard } from './jwt-auth-guard';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-    constructor(private authService: AuthService, private mailService:MailerService) {
-    }
-    @Public()
-    @Get('test')
-    @HttpCode(HttpStatus.CREATED)
-    getHello(): string {
-        return this.authService.getHello();
-    }
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+    private usersService: UsersService,
+  ) {}
 
-    
-    @Public()
-    @Post('local/signup')
-    @HttpCode(HttpStatus.CREATED)
-    signupLocal(@Body() dto: AuthDto): Promise<Tokens> {
-        return this.authService.signupLocal(dto);
-    }
+  @Post('/login')
+  @ApiOkResponse({
+    status: 201,
+    description: 'The user has been successfully logged in.',
+  })
+  @ApiBadRequestResponse({
+    status: 404,
+    description: 'Failed to log in. Try again!',
+  })
+  @ApiBody({ type: [LoginDto] })
+  create(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto);
+  }
 
-    @Public()
-    @Post('local/signin')
-    @HttpCode(HttpStatus.OK)
-    signinLocal(@Body() dto: AuthDto): Promise<Tokens> {
-        return this.authService.signinLocal(dto);
-    }
-
-    @Public()
-    @Post('logout')
-    @HttpCode(HttpStatus.OK)
-    async logout(@Body() logoutDto: LogoutDto) {
-        return this.authService.logout(logoutDto);
-    }
-    
-    @Public()
-    @UseGuards(RtGuard)
-    @Post('refresh')
-    @HttpCode(HttpStatus.OK)
-    async refreshTokens(@Body() refreshTokenDto: RefreshTokenDto) {
-        return await this.authService.refreshTokens(refreshTokenDto);
-    }
-    
-
+  @Post('/register')
+  @ApiOkResponse({
+    status: 201,
+    description: 'The user has been successfully registered.',
+  })
+  @ApiCreatedResponse({
+    description: 'Registered user',
+    type: User,
+  })
+  @ApiBadRequestResponse({
+    status: 404,
+    description: 'User can not register. Try again!',
+  })
+  @ApiBody({ type: [CreateUserDto] })
+  register(@Body() createUserDto: CreateUserDto) {
+    return this.authService.register(createUserDto);
+  }
 }

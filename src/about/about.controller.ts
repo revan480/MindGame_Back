@@ -59,7 +59,7 @@ export class AboutController {
     @Delete(':id')
     @ApiOkResponse({
         status: 201,
-        description: 'The record has been successfully deleted.'
+        description: 'The record has been successfully deleted. '
     })
     @ApiBadRequestResponse({
         status: 404,

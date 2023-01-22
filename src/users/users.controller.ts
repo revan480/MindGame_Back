@@ -31,46 +31,4 @@ export class UsersController {
   getUserInfo(@GetUser() user: User) {
     return this.usersService.getUserInfo(user);
   }
-
-
-  @Get()
-  @ApiOkResponse({
-    status: 201,
-    description: 'Successfully returned all users'
-  })
-  @ApiBadRequestResponse({
-    status: 404,
-    description: 'Users were not found.'
-  })
-  findAll() {
-    return this.usersService.findAll();
-  }
-
-  @Get(':id')
-  @ApiParam({name: 'id'})
-  @ApiOkResponse({
-    status: 201,
-    description: 'Successfully returned the user.'
-  })
-  @ApiBadRequestResponse({
-    status: 404,
-    description: 'User was not found.'
-  })
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
-  }
-
-  @Delete(':id')
-  @ApiParam({name: 'id'})
-  @ApiOkResponse({
-    status: 201,
-    description: 'User has been successfully deleted.'
-  })
-  @ApiBadRequestResponse({
-    status: 404,
-    description: 'Failed to delete the user.'
-  })
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
-  }
 }

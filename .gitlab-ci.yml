@@ -53,4 +53,4 @@ deploy:
         echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin &&
         docker pull $TAG_COMMIT &&
         docker ps -a && docker container stop back && docker container rm back &&
-        docker run -p 3000:3000 -d --network backend --env .env --name back $TAG_COMMIT "
+        docker run -p 3000:3000 -d --network backend --env .env.production --name back $TAG_COMMIT "

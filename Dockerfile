@@ -1,28 +1,38 @@
-# Development stage
-FROM node:16.14.2-alpine3.14 AS development
+#using official 'node' image, with the alpine 3.15 branch as base image for development stage
+FROM node:18.12.1-alpine3.15 As development
 
-# Create app directory
+#copy package.json and package-lock.json files
 WORKDIR /usr/src/app
 
-# Install app dependencies
 COPY package*.json ./
 
-RUN npm install
+#install dependencies
+RUN npm install --only=development
 
-# Bundle app source
+#copy all files from current directory
 COPY . .
 
-CMD [ "npm", "run", "dev" ]
-
-# Production stage
-FROM development AS production
-
-# Run the build script
 RUN npm run build
 
-# Expose the port
 EXPOSE 3000
 
-RUN npx prisma generate
+#using official 'node' image, with the alpine 3.15 branch as base image for production stage
+FROM node:18.12.1-alpine3.15 As production
 
-CMD [ "node", "dist/main" ]
+#define the default value for NODE_ENV
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+
+#copy package.json and package-lock.json files
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+
+# install only dependencies defined in 'dependencies' in package.json
+RUN npm install --only=production
+
+COPY . .
+
+COPY --from=development /usr/src/app/dist ./dist
+
+CMD ["node", "dist/main"]

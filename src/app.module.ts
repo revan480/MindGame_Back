@@ -19,7 +19,7 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
   ConfigModule.forRoot({
     isGlobal: true,
     load: [config],
-    envFilePath: '.env.example',
+    envFilePath: '.env.production',
 
   }),
   RedisModule.forRootAsync({
